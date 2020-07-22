@@ -1,10 +1,10 @@
 [package]
 name = "patricia_tree"
 version = "0.1.10"
-authors = ["Takeru Ohta <phjgt308@gmail.com>"]
+authors = ["Takeru Ohta <phjgt308@gmail.com>", "Evan Cameron <cameron.evan@gmail.com>"]
 description = "Memory-efficient data structures based on patricia tree"
-homepage = "https://github.com/sile/patricia_tree"
-repository = "https://github.com/sile/patricia_tree"
+homepage = "https://github.com/leshow/patricia_tree"
+repository = "https://github.com/leshow/patricia_tree"
 readme = "README.md"
 keywords = ["patricia", "radix", "trie"]
 categories = ["data-structures"]
@@ -12,15 +12,10 @@ license = "MIT"
 edition = "2018"
 
 [badges]
-travis-ci = { repository = "sile/patricia_tree" }
-codecov = { repository = "sile/patricia_tree" }
-
-[features]
-binary-format = ["bytecodec", "trackable"]
+travis-ci = { repository = "leshow/patricia_tree" }
+codecov = { repository = "leshow/patricia_tree" }
 
 [dependencies]
-bytecodec = { version = "0.4", optional = true }
-trackable = { version = "0.2", optional = true }
 smallvec = "1.4.0"
 
 [dev-dependencies]
@@ -29,16 +24,6 @@ rand = "0.7"
 
 [package.metadata.docs.rs]
 all-features = true
-
-[[example]]
-name = "decode"
-path = "examples/decode.rs"
-required-features = ["binary-format"]
-
-[[example]]
-name = "encode"
-path = "examples/encode.rs"
-required-features = ["binary-format"]
 
 [[example]]
 name = "insert_lines"

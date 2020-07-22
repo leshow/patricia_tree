@@ -1,8 +1,6 @@
 //! A node which represents a subtree of a patricia tree.
 use smallvec::SmallVec;
-use std::marker::PhantomData;
-use std::mem;
-use std::ptr::NonNull;
+use std::{marker::PhantomData, mem, ptr::NonNull};
 
 macro_rules! assert_some {
     ($expr:expr) => {
@@ -14,15 +12,13 @@ macro_rules! assert_some {
     };
 }
 
-#[cfg(feature = "binary-format")]
-pub use crate::codec::{NodeDecoder, NodeEncoder};
-
 const MAX_LABEL_LEN: usize = 255;
 
 /// A node which represents a subtree of a patricia tree.
 ///
 /// Note that this is a low level building block.
-/// Usually it is recommended to use more high level data structures (e.g., `PatriciaTree`).
+/// Usually it is recommended to use more high level data structures (e.g.,
+/// `PatriciaTree`).
 #[derive(Debug)]
 pub struct Node<V> {
     value: Option<V>,
@@ -379,13 +375,13 @@ impl<V> Node<V> {
         }
     }
 
-    /// Gets an iterator which traverses the nodes in this tree, in depth first order.
+    /// Gets an iterator which traverses the nodes in this tree, in depth first
+    /// order.
     ///
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
-    /// use patricia_tree::node::Node;
+    /// use patricia_tree::{node::Node, PatriciaSet};
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
@@ -393,15 +389,20 @@ impl<V> Node<V> {
     /// set.insert("baz");
     ///
     /// let node = Node::from(set);
-    /// let nodes = node.iter().map(|(level, node)| (level, node.label())).collect::<Vec<_>>();
-    /// assert_eq!(nodes,
-    ///            [
-    ///                (0, "".as_ref()),
-    ///                (1, "ba".as_ref()),
-    ///                (2, "r".as_ref()),
-    ///                (2, "z".as_ref()),
-    ///                (1, "foo".as_ref())
-    ///            ]);
+    /// let nodes = node
+    ///     .iter()
+    ///     .map(|(level, node)| (level, node.label()))
+    ///     .collect::<Vec<_>>();
+    /// assert_eq!(
+    ///     nodes,
+    ///     [
+    ///         (0, "".as_ref()),
+    ///         (1, "ba".as_ref()),
+    ///         (2, "r".as_ref()),
+    ///         (2, "z".as_ref()),
+    ///         (1, "foo".as_ref())
+    ///     ]
+    /// );
     /// ```
     pub fn iter(&self) -> Iter<V> {
         Iter {
@@ -560,7 +561,8 @@ where
     }
 }
 
-/// An owning iterator which traverses the nodes in a tree, in depth first order.
+/// An owning iterator which traverses the nodes in a tree, in depth first
+/// order.
 ///
 /// The first element of an item is the level of the traversing node.
 #[derive(Debug)]
@@ -630,7 +632,8 @@ mod tests {
         assert_eq!(node1.child().map(|n| n.label()), None);
         assert_eq!(node1.sibling().map(|n| n.label()), Some(&b"foo"[..]));
 
-        // If the length of a label name is longer than 255, it will be splitted to two nodes.
+        // If the length of a label name is longer than 255, it will be splitted to two
+        // nodes.
         let node2 = Node::new([b'a'; 256].as_ref(), Some(4), Some(node1), None);
         assert_eq!(node2.label(), [b'a'; 255].as_ref());
         assert_eq!(node2.value(), None);
