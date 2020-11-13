@@ -28,8 +28,8 @@ pub struct Node<V> {
     _value: PhantomData<V>,
 }
 
-unsafe impl<V> Send for Node<V> {}
-unsafe impl<V> Sync for Node<V> {}
+unsafe impl<V: Send> Send for Node<V> {}
+unsafe impl<V: Sync> Sync for Node<V> {}
 
 impl<V> Node<V> {
     /// Makes a new node which represents an empty tree.
@@ -119,8 +119,8 @@ impl<V> Node<V> {
         }
         Node {
             value,
-            child: child.and_then(|c| NonNull::new(c)),
-            sibling: sibling.and_then(|c| NonNull::new(c)),
+            child: child.and_then(NonNull::new),
+            sibling: sibling.and_then(NonNull::new),
             label: SmallVec::from_slice(label),
             _value: PhantomData,
         }
