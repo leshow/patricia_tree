@@ -1,9 +1,9 @@
 #![feature(test)]
-extern crate patricia_tree;
+extern crate patricia_trie;
 extern crate rand;
 extern crate test;
 
-use patricia_tree::PatriciaSet;
+use patricia_trie::PatriciaSet;
 use rand::seq::SliceRandom;
 
 #[bench]

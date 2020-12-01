@@ -1,5 +1,4 @@
-patricia_tree
-=============
+# patricia_trie
 
 [![patricia_tree](https://img.shields.io/crates/v/patricia_tree.svg)](https://crates.io/crates/patricia_tree)
 [![Documentation](https://docs.rs/patricia_tree/badge.svg)](https://docs.rs/patricia_tree)
@@ -18,11 +17,10 @@ more generic data structures (e.g., `BTreeMap`).
 
 See [Radix tree](https://en.wikipedia.org/wiki/Radix_tree) for more details.
 
-Examples
----------
+## Examples
 
 ```rust
-use patricia_tree::PatriciaMap;
+use patricia_trie::PatriciaMap;
 
 let mut map = PatriciaMap::new();
 map.insert("foo", 1);
@@ -35,8 +33,7 @@ assert_eq!(map.get("bar"), Some(&2));
 assert_eq!(map.get("baz"), Some(&3));
 ```
 
-Benchmarks
------------
+## Benchmarks
 
 ```console
 $ cargo run --example insert_lines --release -- --version 2> /dev/null

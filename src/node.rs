@@ -37,7 +37,7 @@ impl<V> Node<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::node::Node;
+    /// use patricia_trie::node::Node;
     ///
     /// let node = Node::<()>::root();
     /// assert!(node.label().is_empty());
@@ -54,7 +54,7 @@ impl<V> Node<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::node::Node;
+    /// use patricia_trie::node::Node;
     ///
     /// let node0 = Node::new("foo".as_ref(), Some(3), None, None);
     /// assert_eq!(node0.label(), b"foo");
@@ -381,7 +381,7 @@ impl<V> Node<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::{node::Node, PatriciaSet};
+    /// use patricia_trie::{node::Node, PatriciaSet};
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
@@ -416,7 +416,7 @@ impl<V> Node<V> {
         }
     }
 
-    pub(crate) fn common_prefixes<'a, K>(&'a self, key: K) -> CommonPrefixesIter<'a, K, V>
+    pub(crate) fn common_prefixes<K>(&self, key: K) -> CommonPrefixesIter<'_, K, V>
     where
         K: AsRef<[u8]>,
     {

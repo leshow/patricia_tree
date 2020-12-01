@@ -1,5 +1,5 @@
 [package]
-name = "patricia_tree"
+name = "patricia_trie"
 version = "0.1.10"
 authors = ["Takeru Ohta <phjgt308@gmail.com>", "Evan Cameron <cameron.evan@gmail.com>"]
 description = "Memory-efficient data structures based on patricia tree"

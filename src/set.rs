@@ -1,8 +1,9 @@
 //! A set based on a patricia tree.
-use crate::map::{self, PatriciaMap};
-use crate::node::Node;
-use std::fmt;
-use std::iter::FromIterator;
+use crate::{
+    map::{self, PatriciaMap},
+    node::Node,
+};
+use std::{fmt, iter::FromIterator};
 
 /// A set based on a patricia tree.
 #[derive(Default, Clone)]
@@ -16,7 +17,7 @@ impl PatriciaSet {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let set = PatriciaSet::new();
     /// assert!(set.is_empty());
@@ -32,7 +33,7 @@ impl PatriciaSet {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
@@ -48,7 +49,7 @@ impl PatriciaSet {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// assert!(set.is_empty());
@@ -68,7 +69,7 @@ impl PatriciaSet {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
@@ -84,7 +85,7 @@ impl PatriciaSet {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
@@ -100,16 +101,25 @@ impl PatriciaSet {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
     /// set.insert("foobar");
     /// assert_eq!(set.get_longest_common_prefix("fo"), None);
     /// assert_eq!(set.get_longest_common_prefix("foo"), Some("foo".as_bytes()));
-    /// assert_eq!(set.get_longest_common_prefix("fooba"), Some("foo".as_bytes()));
-    /// assert_eq!(set.get_longest_common_prefix("foobar"), Some("foobar".as_bytes()));
-    /// assert_eq!(set.get_longest_common_prefix("foobarbaz"), Some("foobar".as_bytes()));
+    /// assert_eq!(
+    ///     set.get_longest_common_prefix("fooba"),
+    ///     Some("foo".as_bytes())
+    /// );
+    /// assert_eq!(
+    ///     set.get_longest_common_prefix("foobar"),
+    ///     Some("foobar".as_bytes())
+    /// );
+    /// assert_eq!(
+    ///     set.get_longest_common_prefix("foobarbaz"),
+    ///     Some("foobar".as_bytes())
+    /// );
     /// ```
     pub fn get_longest_common_prefix<'a, T>(&self, value: &'a T) -> Option<&'a [u8]>
     where
@@ -123,12 +133,13 @@ impl PatriciaSet {
     /// Adds a value to this set.
     ///
     /// If the set did not have this value present, `true` is returned.
-    /// If the set did have this value present, `false` is returned, and the entry is not updated.
+    /// If the set did have this value present, `false` is returned, and the
+    /// entry is not updated.
     ///
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// assert!(set.insert("foo"));
@@ -139,12 +150,13 @@ impl PatriciaSet {
         self.map.insert(value, ()).is_none()
     }
 
-    /// Removes a value from the set. Returns `true` is the value was present in this set.
+    /// Removes a value from the set. Returns `true` is the value was present in
+    /// this set.
     ///
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
@@ -162,7 +174,7 @@ impl PatriciaSet {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut a = PatriciaSet::new();
     /// a.insert("rust");
@@ -186,32 +198,39 @@ impl PatriciaSet {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
     /// set.insert("bar");
     /// set.insert("baz");
     ///
-    /// assert_eq!(set.iter().collect::<Vec<_>>(), [Vec::from("bar"), "baz".into(), "foo".into()]);
+    /// assert_eq!(
+    ///     set.iter().collect::<Vec<_>>(),
+    ///     [Vec::from("bar"), "baz".into(), "foo".into()]
+    /// );
     /// ```
     pub fn iter(&self) -> Iter {
         Iter(self.map.keys())
     }
 
-    /// Gets an iterator over the contents having the given prefix of this set, in sorted order.
+    /// Gets an iterator over the contents having the given prefix of this set,
+    /// in sorted order.
     ///
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaSet;
+    /// use patricia_trie::PatriciaSet;
     ///
     /// let mut set = PatriciaSet::new();
     /// set.insert("foo");
     /// set.insert("bar");
     /// set.insert("baz");
     ///
-    /// assert_eq!(set.iter_prefix(b"ba").collect::<Vec<_>>(), [Vec::from("bar"), "baz".into()]);
+    /// assert_eq!(
+    ///     set.iter_prefix(b"ba").collect::<Vec<_>>(),
+    ///     [Vec::from("bar"), "baz".into()]
+    /// );
     /// ```
     pub fn iter_prefix<'a, 'b>(&'a self, prefix: &'b [u8]) -> impl 'a + Iterator<Item = Vec<u8>>
     where

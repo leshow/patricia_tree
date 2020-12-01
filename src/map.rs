@@ -1,8 +1,9 @@
 //! A map based on a patricia tree.
-use crate::node::Node;
-use crate::tree::{self, PatriciaTree};
-use std::fmt;
-use std::iter::FromIterator;
+use crate::{
+    node::Node,
+    tree::{self, PatriciaTree},
+};
+use std::{fmt, iter::FromIterator};
 
 /// A map based on a patricia tree.
 #[derive(Clone)]
@@ -16,7 +17,7 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// assert!(map.is_empty());
@@ -39,7 +40,7 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// map.insert("foo", 1);
@@ -55,7 +56,7 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// map.insert("foo", 1);
@@ -71,7 +72,7 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// map.insert("foo", 1);
@@ -87,7 +88,7 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// map.insert("foo", 1);
@@ -104,16 +105,28 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// map.insert("foo", 1);
     /// map.insert("foobar", 2);
     /// assert_eq!(map.get_longest_common_prefix("fo"), None);
-    /// assert_eq!(map.get_longest_common_prefix("foo"), Some(("foo".as_bytes(), &1)));
-    /// assert_eq!(map.get_longest_common_prefix("fooba"), Some(("foo".as_bytes(), &1)));
-    /// assert_eq!(map.get_longest_common_prefix("foobar"), Some(("foobar".as_bytes(), &2)));
-    /// assert_eq!(map.get_longest_common_prefix("foobarbaz"), Some(("foobar".as_bytes(), &2)));
+    /// assert_eq!(
+    ///     map.get_longest_common_prefix("foo"),
+    ///     Some(("foo".as_bytes(), &1))
+    /// );
+    /// assert_eq!(
+    ///     map.get_longest_common_prefix("fooba"),
+    ///     Some(("foo".as_bytes(), &1))
+    /// );
+    /// assert_eq!(
+    ///     map.get_longest_common_prefix("foobar"),
+    ///     Some(("foobar".as_bytes(), &2))
+    /// );
+    /// assert_eq!(
+    ///     map.get_longest_common_prefix("foobarbaz"),
+    ///     Some(("foobar".as_bytes(), &2))
+    /// );
     /// ```
     pub fn get_longest_common_prefix<'a, K>(&self, key: &'a K) -> Option<(&'a [u8], &V)>
     where
@@ -125,12 +138,13 @@ impl<V> PatriciaMap<V> {
     /// Inserts a key-value pair into this map.
     ///
     /// If the map did not have this key present, `None` is returned.
-    /// If the map did have this key present, the value is updated, and the old value is returned.
+    /// If the map did have this key present, the value is updated, and the old
+    /// value is returned.
     ///
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// assert_eq!(map.insert("foo", 1), None);
@@ -142,12 +156,13 @@ impl<V> PatriciaMap<V> {
         self.tree.insert(key, value)
     }
 
-    /// Removes a key from this map, returning the value at the key if the key was previously in it.
+    /// Removes a key from this map, returning the value at the key if the key
+    /// was previously in it.
     ///
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// map.insert("foo", 1);
@@ -158,12 +173,13 @@ impl<V> PatriciaMap<V> {
         self.tree.remove(key)
     }
 
-    /// Returns an iterator that collects all entries in the map up to a certain key.
+    /// Returns an iterator that collects all entries in the map up to a certain
+    /// key.
     ///
     /// # Example
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     /// let mut t = PatriciaMap::new();
     /// t.insert("a", vec!["a"]);
     /// t.insert("x", vec!["x"]);
@@ -189,12 +205,13 @@ impl<V> PatriciaMap<V> {
             .filter_map(move |(prefix_len, n)| n.value().map(|v| (&key[..prefix_len], v)))
     }
 
-    /// Returns an iterator that collects all values of entries in the map up to a certain key.
+    /// Returns an iterator that collects all values of entries in the map up to
+    /// a certain key.
     ///
     /// # Example
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     /// let mut t = PatriciaMap::new();
     /// t.insert("a", vec!["a"]);
     /// t.insert("x", vec!["x"]);
@@ -215,12 +232,13 @@ impl<V> PatriciaMap<V> {
 
     /// Splits the map into two at the given prefix.
     ///
-    /// The returned map contains all the entries of which keys are prefixed by `prefix`.
+    /// The returned map contains all the entries of which keys are prefixed by
+    /// `prefix`.
     ///
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut a = PatriciaMap::new();
     /// a.insert("rust", 1);
@@ -246,7 +264,7 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// map.insert("foo", 1);
@@ -262,7 +280,7 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
     /// let mut map = PatriciaMap::new();
     /// assert!(map.is_empty());
@@ -282,12 +300,19 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
-    /// let map: PatriciaMap<_> =
-    ///     vec![("foo", 1), ("bar", 2), ("baz", 3)].into_iter().collect();
-    /// assert_eq!(vec![(Vec::from("bar"), &2), ("baz".into(), &3), ("foo".into(), &1)],
-    ///            map.iter().collect::<Vec<_>>());
+    /// let map: PatriciaMap<_> = vec![("foo", 1), ("bar", 2), ("baz", 3)]
+    ///     .into_iter()
+    ///     .collect();
+    /// assert_eq!(
+    ///     vec![
+    ///         (Vec::from("bar"), &2),
+    ///         ("baz".into(), &3),
+    ///         ("foo".into(), &1)
+    ///     ],
+    ///     map.iter().collect::<Vec<_>>()
+    /// );
     /// ```
     pub fn iter(&self) -> Iter<V> {
         Iter::new(self.tree.nodes(), Vec::new())
@@ -298,12 +323,13 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
-    /// let mut map: PatriciaMap<_> =
-    ///     vec![("foo", 1), ("bar", 2), ("baz", 3)].into_iter().collect();
+    /// let mut map: PatriciaMap<_> = vec![("foo", 1), ("bar", 2), ("baz", 3)]
+    ///     .into_iter()
+    ///     .collect();
     /// for (_, v) in map.iter_mut() {
-    ///    *v += 10;
+    ///     *v += 10;
     /// }
     /// assert_eq!(map.get("bar"), Some(&12));
     /// ```
@@ -314,17 +340,21 @@ impl<V> PatriciaMap<V> {
         }
     }
 
-    /// Gets an iterator over the entries having the given prefix of this map, sorted by key.
+    /// Gets an iterator over the entries having the given prefix of this map,
+    /// sorted by key.
     ///
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
-    /// let map: PatriciaMap<_> =
-    ///     vec![("foo", 1), ("bar", 2), ("baz", 3)].into_iter().collect();
-    /// assert_eq!(vec![(Vec::from("bar"), &2), ("baz".into(), &3)],
-    ///            map.iter_prefix(b"ba").collect::<Vec<_>>());
+    /// let map: PatriciaMap<_> = vec![("foo", 1), ("bar", 2), ("baz", 3)]
+    ///     .into_iter()
+    ///     .collect();
+    /// assert_eq!(
+    ///     vec![(Vec::from("bar"), &2), ("baz".into(), &3)],
+    ///     map.iter_prefix(b"ba").collect::<Vec<_>>()
+    /// );
     /// ```
     pub fn iter_prefix<'a, 'b>(
         &'a self,
@@ -344,12 +374,15 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
-    /// let map: PatriciaMap<_> =
-    ///     vec![("foo", 1), ("bar", 2), ("baz", 3)].into_iter().collect();
-    /// assert_eq!(vec![Vec::from("bar"), "baz".into(), "foo".into()],
-    ///            map.keys().collect::<Vec<_>>());
+    /// let map: PatriciaMap<_> = vec![("foo", 1), ("bar", 2), ("baz", 3)]
+    ///     .into_iter()
+    ///     .collect();
+    /// assert_eq!(
+    ///     vec![Vec::from("bar"), "baz".into(), "foo".into()],
+    ///     map.keys().collect::<Vec<_>>()
+    /// );
     /// ```
     pub fn keys(&self) -> Keys<V> {
         Keys(self.iter())
@@ -360,12 +393,12 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
-    /// let map: PatriciaMap<_> =
-    ///     vec![("foo", 1), ("bar", 2), ("baz", 3)].into_iter().collect();
-    /// assert_eq!(vec![2, 3, 1],
-    ///            map.values().cloned().collect::<Vec<_>>());
+    /// let map: PatriciaMap<_> = vec![("foo", 1), ("bar", 2), ("baz", 3)]
+    ///     .into_iter()
+    ///     .collect();
+    /// assert_eq!(vec![2, 3, 1], map.values().cloned().collect::<Vec<_>>());
     /// ```
     pub fn values(&self) -> Values<V> {
         Values {
@@ -378,15 +411,15 @@ impl<V> PatriciaMap<V> {
     /// # Examples
     ///
     /// ```
-    /// use patricia_tree::PatriciaMap;
+    /// use patricia_trie::PatriciaMap;
     ///
-    /// let mut map: PatriciaMap<_> =
-    ///     vec![("foo", 1), ("bar", 2), ("baz", 3)].into_iter().collect();
+    /// let mut map: PatriciaMap<_> = vec![("foo", 1), ("bar", 2), ("baz", 3)]
+    ///     .into_iter()
+    ///     .collect();
     /// for v in map.values_mut() {
     ///     *v += 10;
     /// }
-    /// assert_eq!(vec![12, 13, 11],
-    ///            map.values().cloned().collect::<Vec<_>>());
+    /// assert_eq!(vec![12, 13, 11], map.values().cloned().collect::<Vec<_>>());
     /// ```
     pub fn values_mut(&mut self) -> ValuesMut<V> {
         ValuesMut {
@@ -767,7 +800,7 @@ mod tests {
         assert!(results.iter().eq(vec![&"a", &"b", &"c"].into_iter()));
 
         let mut list = PatriciaMap::new();
-        list.insert(b".com.foocatnetworks.".as_ref(), vec![0 as u16]);
+        list.insert(b".com.foocatnetworks.".as_ref(), vec![0_u16]);
         list.insert(b".com.foocatnetworks.foo.".as_ref(), vec![1]);
         list.insert(b".com.foocatnetworks.foo.baz.".as_ref(), vec![2]);
         list.insert(b".com.google.".as_ref(), vec![0]);
@@ -781,6 +814,6 @@ mod tests {
             .cloned()
             .collect::<Vec<_>>();
 
-        assert!(vec![0 as u16, 1, 2].into_iter().eq(results.into_iter()));
+        assert!(vec![0_u16, 1, 2].into_iter().eq(results.into_iter()));
     }
 }
