@@ -1,14 +1,14 @@
 # patricia_trie
 
-[![patricia_tree](https://img.shields.io/crates/v/patricia_tree.svg)](https://crates.io/crates/patricia_tree)
-[![Documentation](https://docs.rs/patricia_tree/badge.svg)](https://docs.rs/patricia_tree)
-[![Build Status](https://travis-ci.org/sile/patricia_tree.svg?branch=master)](https://travis-ci.org/sile/patricia_tree)
-[![Code Coverage](https://codecov.io/gh/sile/patricia_tree/branch/master/graph/badge.svg)](https://codecov.io/gh/sile/patricia_tree/branch/master)
+[![patricia_trie](https://img.shields.io/crates/v/patricia_trie.svg)](https://crates.io/crates/patricia_trie)
+[![Documentation](https://docs.rs/patricia_trie/badge.svg)](https://docs.rs/patricia_trie)
+[![Build Status](https://travis-ci.org/leshow/patricia_tree.svg?branch=master)](https://travis-ci.org/leshow/patricia_tree)
+[![Code Coverage](https://codecov.io/gh/leshow/patricia_tree/branch/master/graph/badge.svg)](https://codecov.io/gh/leshow/patricia_tree/branch/master)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Memory-efficient data structures based on patricia tree (a.k.a, radix tree).
 
-[Documentation](https://docs.rs/patricia_tree)
+[Documentation](https://docs.rs/patricia_trie)
 
 A common prefixes of the keys in a patricia tree are represented by a shared path.
 So if the prefixes of the key set is highly redundant,

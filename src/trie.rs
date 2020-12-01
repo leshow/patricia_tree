@@ -1,14 +1,14 @@
 use crate::node::{self, Node};
 
 #[derive(Debug, Clone)]
-pub struct PatriciaTree<V> {
+pub struct PatriciaTrie<V> {
     root: Node<V>,
     len: usize,
 }
 
-impl<V> PatriciaTree<V> {
+impl<V> PatriciaTrie<V> {
     pub fn new() -> Self {
-        PatriciaTree {
+        PatriciaTrie {
             root: Node::root(),
             len: 0,
         }
@@ -95,14 +95,14 @@ impl<V> PatriciaTree<V> {
         }
     }
 }
-impl<V> Default for PatriciaTree<V> {
+impl<V> Default for PatriciaTrie<V> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<V> From<Node<V>> for PatriciaTree<V> {
+impl<V> From<Node<V>> for PatriciaTrie<V> {
     fn from(f: Node<V>) -> Self {
-        let mut this = PatriciaTree { root: f, len: 0 };
+        let mut this = PatriciaTrie { root: f, len: 0 };
         let count = this.nodes().filter(|n| n.1.value().is_some()).count();
         this.len = count;
         this
@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let mut tree = PatriciaTree::new();
+        let mut tree = PatriciaTrie::new();
         assert_eq!(tree.insert("", 1), None);
         assert_eq!(tree.insert("", 2), Some(1));
 

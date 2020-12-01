@@ -1,14 +1,14 @@
 //! A map based on a patricia tree.
 use crate::{
     node::Node,
-    tree::{self, PatriciaTree},
+    trie::{self, PatriciaTrie},
 };
 use std::{fmt, iter::FromIterator};
 
 /// A map based on a patricia tree.
 #[derive(Clone)]
 pub struct PatriciaMap<V> {
-    tree: PatriciaTree<V>,
+    tree: PatriciaTrie<V>,
 }
 
 impl<V> PatriciaMap<V> {
@@ -31,7 +31,7 @@ impl<V> PatriciaMap<V> {
     /// ```
     pub fn new() -> Self {
         PatriciaMap {
-            tree: PatriciaTree::new(),
+            tree: PatriciaTrie::new(),
         }
     }
 
@@ -502,12 +502,12 @@ impl<V> AsRef<Node<V>> for PatriciaMap<V> {
 /// An iterator over a `PatriciaMap`'s entries.
 #[derive(Debug)]
 pub struct Iter<'a, V: 'a> {
-    nodes: tree::Nodes<'a, V>,
+    nodes: trie::Nodes<'a, V>,
     key: Vec<u8>,
     key_offset: usize,
 }
 impl<'a, V: 'a> Iter<'a, V> {
-    fn new(nodes: tree::Nodes<'a, V>, key: Vec<u8>) -> Self {
+    fn new(nodes: trie::Nodes<'a, V>, key: Vec<u8>) -> Self {
         let key_offset = key.len();
         Self {
             nodes,
@@ -533,7 +533,7 @@ impl<'a, V: 'a> Iterator for Iter<'a, V> {
 /// An owning iterator over a `PatriciaMap`'s entries.
 #[derive(Debug)]
 pub struct IntoIter<V> {
-    nodes: tree::IntoNodes<V>,
+    nodes: trie::IntoNodes<V>,
     key: Vec<u8>,
 }
 impl<V> Iterator for IntoIter<V> {
@@ -553,7 +553,7 @@ impl<V> Iterator for IntoIter<V> {
 /// A mutable iterator over a `PatriciaMap`'s entries.
 #[derive(Debug)]
 pub struct IterMut<'a, V: 'a> {
-    nodes: tree::Nodes<'a, V>,
+    nodes: trie::Nodes<'a, V>,
     key: Vec<u8>,
 }
 impl<'a, V: 'a> Iterator for IterMut<'a, V> {
@@ -586,7 +586,7 @@ impl<'a, V: 'a> Iterator for Keys<'a, V> {
 /// An iterator over a `PatriciaMap`'s values.
 #[derive(Debug)]
 pub struct Values<'a, V: 'a> {
-    nodes: tree::Nodes<'a, V>,
+    nodes: trie::Nodes<'a, V>,
 }
 impl<'a, V: 'a> Iterator for Values<'a, V> {
     type Item = &'a V;
@@ -603,7 +603,7 @@ impl<'a, V: 'a> Iterator for Values<'a, V> {
 /// A mutable iterator over a `PatriciaMap`'s values.
 #[derive(Debug)]
 pub struct ValuesMut<'a, V: 'a> {
-    nodes: tree::Nodes<'a, V>,
+    nodes: trie::Nodes<'a, V>,
 }
 impl<'a, V: 'a> Iterator for ValuesMut<'a, V> {
     type Item = &'a mut V;

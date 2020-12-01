@@ -18,7 +18,7 @@ const MAX_LABEL_LEN: usize = 255;
 ///
 /// Note that this is a low level building block.
 /// Usually it is recommended to use more high level data structures (e.g.,
-/// `PatriciaTree`).
+/// `PatriciaTrie`).
 #[derive(Debug)]
 pub struct Node<V> {
     value: Option<V>,

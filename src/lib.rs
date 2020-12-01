@@ -25,9 +25,6 @@
 #![warn(missing_docs)]
 #![allow(clippy::cast_ptr_alignment, clippy::cast_ref_to_mut)]
 
-#[cfg(test)]
-extern crate rand;
-
 pub use map::PatriciaMap;
 pub use set::PatriciaSet;
 
@@ -35,4 +32,4 @@ pub mod map;
 pub mod node;
 pub mod set;
 
-mod tree;
+mod trie;
