@@ -64,9 +64,9 @@ impl<T: Serialize> Serialize for Node<T> {
             tree_bytes.push((level >> 8) as u8);
             tree_bytes.push(level as u8);
             tree_bytes.extend(node.label());
-            // value is always present
-            values.push(node.value());
-
+            if let Some(val) = node.value() {
+                values.push(val);
+            }
             if let Some(sibling) = node.sibling() {
                 stack.push((level, sibling));
             }
@@ -129,7 +129,7 @@ impl<'de, K: crate::Bytes, V: Deserialize<'de>> Deserialize<'de> for KeyAndNode<
     where
         D: Deserializer<'de>,
     {
-        let (tree_bytes, mut values): (Bytes<'de>, Vec<Option<V>>) =
+        let (tree_bytes, mut values): (Bytes<'de>, Vec<V>) =
             Deserialize::deserialize(deserializer)?;
         values.reverse();
         let mut tree_bytes = tree_bytes.0.as_ref();
@@ -157,12 +157,11 @@ impl<'de, K: crate::Bytes, V: Deserialize<'de>> Deserialize<'de> for KeyAndNode<
             }
             tree_bytes = &tree_bytes[label_len..];
 
-            // value is always present now
-            let value = values
-                .pop()
-                .ok_or_else(|| D::Error::custom("too few values"))?;
-            if let Some(v) = value {
-                node.set_value(v);
+            if flags.contains(Flags::VALUE_INITIALIZED) {
+                let value = values
+                    .pop()
+                    .ok_or_else(|| D::Error::custom("too few values"))?;
+                node.set_value(value);
             }
 
             stack.push((level, node));

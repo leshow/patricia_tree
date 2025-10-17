@@ -162,7 +162,7 @@ impl<V> Node<V> {
             init_flags.insert(Flags::SIBLING_ALLOCATED);
         }
         if flags.contains(Flags::VALUE_INITIALIZED) {
-            init_flags.insert(Flags::VALUE_INITIALIZED);
+            init_flags.insert(Flags::VALUE_ALLOCATED);
         }
 
         let header = NodeHeader {
