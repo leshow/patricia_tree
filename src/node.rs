@@ -24,9 +24,11 @@ impl Flags {
     pub(crate) const CHILD_INITIALIZED: Flags = Flags(0b0000_0010);
     pub(crate) const SIBLING_ALLOCATED: Flags = Flags(0b0000_0100);
     pub(crate) const SIBLING_INITIALIZED: Flags = Flags(0b0000_1000);
+    pub(crate) const VALUE_ALLOCATED: Flags = Flags(0b0001_0000);
+    pub(crate) const VALUE_INITIALIZED: Flags = Flags(0b0010_0000);
 
     #[allow(unused)]
-    const VALID_BITS_MASK: u8 = 0b0000_1111; // Mask of all valid flag bits.
+    const VALID_BITS_MASK: u8 = 0b0011_1111; // Mask of all valid flag bits.
 
     const fn empty() -> Self {
         Flags(0)
@@ -84,7 +86,7 @@ pub struct Node<V> {
     //   - flags: u8
     //   - label_len: u8
     //   - label: [u8; label_len]
-    //   - value: Option<V>
+    //   - value: Option<V> -- conditionally allocated
     //   - child: Option<Node<V>> -- conditionally allocated
     //   - sibling: Option<Node<V>> -- conditionally allocated
     pub(crate) ptr: ptr::NonNull<NodeHeader>,
@@ -120,6 +122,9 @@ impl<V> Node<V> {
         if sibling.is_some() {
             flags.insert(Flags::SIBLING_ALLOCATED | Flags::SIBLING_INITIALIZED);
         }
+        if value.is_some() {
+            flags.insert(Flags::VALUE_ALLOCATED | Flags::VALUE_INITIALIZED);
+        }
 
         let header = NodeHeader {
             flags,
@@ -128,9 +133,11 @@ impl<V> Node<V> {
         let mut ptr = header.ptr_data().allocate();
         unsafe {
             ptr.write_header(header);
-
             ptr.write_label(label);
-            ptr.write_value(value);
+
+            if let Some(val) = value {
+                ptr.write_value(val);
+            }
             if let Some(child) = child {
                 ptr.write_child(child);
             }
@@ -154,6 +161,9 @@ impl<V> Node<V> {
         if flags.contains(Flags::SIBLING_INITIALIZED) {
             init_flags.insert(Flags::SIBLING_ALLOCATED);
         }
+        if flags.contains(Flags::VALUE_INITIALIZED) {
+            init_flags.insert(Flags::VALUE_INITIALIZED);
+        }
 
         let header = NodeHeader {
             flags: init_flags,
@@ -162,7 +172,7 @@ impl<V> Node<V> {
         let mut ptr = header.ptr_data().allocate();
         unsafe {
             ptr.write_header(header);
-            ptr.write_value(None::<V>);
+            // ptr.write_value(None::<V>);
 
             ptr.assume_init()
         }
@@ -196,12 +206,18 @@ impl<V> Node<V> {
 
     /// Returns the reference to the value of this node.
     pub fn value(&self) -> Option<&V> {
-        unsafe { (self.ptr_data().value_ptr(self.ptr)).as_ref() }.as_ref()
+        if let Some(val) = unsafe { self.ptr_data().value_ptr_init(self.ptr) } {
+            return Some(unsafe { val.as_ref() });
+        }
+        None
     }
 
     /// Returns the mutable reference to the value of this node.
     pub fn value_mut(&mut self) -> Option<&mut V> {
-        unsafe { (self.ptr_data().value_ptr(self.ptr)).as_mut() }.as_mut()
+        if let Some(mut val) = unsafe { self.ptr_data().value_ptr_init(self.ptr) } {
+            return Some(unsafe { val.as_mut() });
+        }
+        None
     }
 
     /// Returns the reference to the child of this node.
@@ -250,8 +266,12 @@ impl<V> Node<V> {
             } else {
                 None
             };
-
-        let value_result = unsafe { self.ptr_data().value_ptr(self.ptr).as_mut() }.as_mut();
+        let value_result =
+            if let Some(mut sibling) = unsafe { self.ptr_data().value_ptr_init(self.ptr) } {
+                Some(unsafe { sibling.as_mut() })
+            } else {
+                None
+            };
 
         NodeMut {
             label: self.label(),
@@ -263,10 +283,7 @@ impl<V> Node<V> {
 
     /// Takes the value out of this node.
     pub fn take_value(&mut self) -> Option<V> {
-        unsafe {
-            let ptr = self.ptr_data().value_ptr(self.ptr);
-            ptr.replace(None)
-        }
+        unsafe { self.ptr_data().take_value(self.ptr) }
     }
 
     /// Takes the child out of this node.
@@ -281,10 +298,17 @@ impl<V> Node<V> {
 
     /// Sets the value of this node.
     pub fn set_value(&mut self, value: V) {
-        // self.take_value();
-        unsafe {
-            let ptr = self.ptr_data().value_ptr(self.ptr);
-            let _ = ptr.replace(Some(value));
+        self.take_value();
+        if let Some(ptr) = unsafe { self.ptr_data().value_ptr_alloc(self.ptr) } {
+            self.set_flags(Flags::VALUE_INITIALIZED, true);
+            unsafe {
+                ptr.write(value);
+            }
+        } else {
+            let child = self.take_child();
+            let sibling = self.take_sibling();
+            let node = Node::new(self.label(), Some(value), child, sibling);
+            *self = node;
         }
     }
 

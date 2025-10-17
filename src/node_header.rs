@@ -30,7 +30,7 @@ pub(crate) struct NodeHeader {
 
 pub(crate) struct PtrData<V> {
     pub(crate) layout: Layout,
-    pub(crate) value_offset: usize,
+    pub(crate) value_offset: Option<usize>,
     pub(crate) child_offset: Option<usize>,
     pub(crate) sibling_offset: Option<usize>,
     pub(crate) _marker: PhantomData<V>,
@@ -48,15 +48,9 @@ impl<V> NodePtrAndData<V> {
     }
 
     #[inline]
-    pub unsafe fn write_value(&mut self, value: Option<V>) {
-        unsafe {
-            ptr::write(
-                self.ptr
-                    .byte_add(self.ptr_data.value_offset)
-                    .cast()
-                    .as_ptr(),
-                value,
-            )
+    pub unsafe fn write_value(&mut self, value: V) {
+        if let Some(offset) = self.ptr_data.value_offset {
+            unsafe { ptr::write(self.ptr.byte_add(offset).cast().as_ptr(), value) }
         }
     }
     /// must have flags already set as allocated
@@ -112,8 +106,14 @@ impl NodeHeader {
 
     #[inline]
     pub fn ptr_data<V>(&self) -> PtrData<V> {
-        let layout = Self::initial_layout(self.label_len as usize);
-        let (mut layout, value_offset) = extend!(layout.extend(Layout::new::<Option<V>>()));
+        let mut layout = Self::initial_layout(self.label_len as usize);
+        let value_offset = if self.flags.contains(Flags::VALUE_ALLOCATED) {
+            let (new_layout, offset) = extend!(layout.extend(Layout::new::<V>()));
+            layout = new_layout;
+            Some(offset)
+        } else {
+            None
+        };
 
         let child_offset = if self.flags.contains(Flags::CHILD_ALLOCATED) {
             let (new_layout, offset) = extend!(layout.extend(Layout::new::<Node<V>>()));
@@ -159,8 +159,7 @@ impl<V> PtrData<V> {
     pub fn dealloc(self, header_ptr: NonNull<NodeHeader>) {
         // drop
         unsafe {
-            let value_ptr = self.value_ptr(header_ptr);
-            let _ = value_ptr.read();
+            let _ = self.take_value(header_ptr);
             // drop_in_place tears down the value, but if value
             // was a ptr (like the child/sibling), we would need to use ptr::read to drop
             // ptr::drop_in_place(value_ptr.as_ptr());
@@ -193,11 +192,6 @@ impl<V> PtrData<V> {
                 label_len,
             )
         }
-    }
-    #[inline]
-    pub unsafe fn value_ptr(&self, header_ptr: NonNull<NodeHeader>) -> NonNull<Option<V>> {
-        let offset = self.value_offset;
-        unsafe { header_ptr.byte_offset(offset as isize).cast::<Option<V>>() }
     }
 
     #[inline]
@@ -255,6 +249,21 @@ impl<V> PtrData<V> {
     }
 
     #[inline]
+    pub unsafe fn take_value(&self, mut header_ptr: NonNull<NodeHeader>) -> Option<V> {
+        unsafe {
+            if let Some(ptr) = self.value_ptr(header_ptr, Flags::VALUE_INITIALIZED) {
+                header_ptr
+                    .as_mut()
+                    .flags
+                    .set(Flags::VALUE_INITIALIZED, false);
+                Some(ptr.read())
+            } else {
+                None
+            }
+        }
+    }
+
+    #[inline]
     pub unsafe fn take_child(&self, mut header_ptr: NonNull<NodeHeader>) -> Option<Node<V>> {
         unsafe {
             if let Some(ptr) = self.child_ptr(header_ptr, Flags::CHILD_INITIALIZED) {
@@ -278,6 +287,16 @@ impl<V> PtrData<V> {
     }
 
     #[inline]
+    pub unsafe fn value_ptr_alloc(&self, header_ptr: NonNull<NodeHeader>) -> Option<NonNull<V>> {
+        unsafe { self.value_ptr(header_ptr, Flags::VALUE_ALLOCATED) }
+    }
+
+    #[inline]
+    pub unsafe fn value_ptr_init(&self, header_ptr: NonNull<NodeHeader>) -> Option<NonNull<V>> {
+        unsafe { self.value_ptr(header_ptr, Flags::VALUE_INITIALIZED) }
+    }
+
+    #[inline]
     unsafe fn sibling_ptr(
         &self,
         header_ptr: NonNull<NodeHeader>,
@@ -285,6 +304,20 @@ impl<V> PtrData<V> {
     ) -> Option<NonNull<Node<V>>> {
         if unsafe { *header_ptr.as_ptr() }.flags.contains(flags) {
             let offset = self.sibling_offset?;
+            unsafe {
+                return Some(header_ptr.byte_add(offset).cast());
+            }
+        }
+        None
+    }
+    #[inline]
+    unsafe fn value_ptr(
+        &self,
+        header_ptr: NonNull<NodeHeader>,
+        flags: Flags,
+    ) -> Option<NonNull<V>> {
+        if unsafe { *header_ptr.as_ptr() }.flags.contains(flags) {
+            let offset = self.value_offset?;
             unsafe {
                 return Some(header_ptr.byte_add(offset).cast());
             }
